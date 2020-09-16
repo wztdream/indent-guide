@@ -245,15 +245,12 @@ the point. When no such points are found, just return nil."
   (interactive)
   (unless (or (indent-guide--active-overlays)
               (active-minibuffer-window))
-    (let ((win-start (window-start))
-          (win-end (window-end nil t))
-          line-col line-start line-end)
+    (let (line-col line-start line-end)
       ;; decide line-col, line-start
       (save-excursion
         (indent-guide--beginning-of-level)
         (setq line-col (current-column)
-              line-start (max (1+ (line-number-at-pos))
-                              (line-number-at-pos win-start)))
+              line-start (1+ (line-number-at-pos)))
         ;; if recursive draw is enabled and (line-col > 0), recurse
         ;; into lower level.
         (when (and indent-guide-recursive (> line-col 0))
@@ -264,8 +261,7 @@ the point. When no such points are found, just return nil."
           (while (and (progn (back-to-indentation)
                              (or (< line-col (current-column)) (eolp)))
                       (forward-line 1)
-                      (not (eobp))
-                      (<= (point) win-end)))
+                      (not (eobp))))
           (cond ((< line-col (current-column))
                  (setq line-end (line-number-at-pos)))
                 ((not (memq major-mode indent-guide-lispy-modes))
